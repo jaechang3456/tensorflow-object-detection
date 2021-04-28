@@ -118,3 +118,6 @@ def show_inference(model, image_path):
 
 for image_path in TEST_IMAGE_PATHS:
     show_inference(detection_model, image_path)
+
+cv2.waitKey()
+cv2.destroyAllWindows()
