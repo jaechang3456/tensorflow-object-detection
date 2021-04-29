@@ -124,6 +124,8 @@ def show_inference(model, image_np):
 
     cv2.imshow("result", image_np)
 
+    return image_np
+
 ## 이미지 경로에 있는 이미지를 실행
 # PATH_TO_TEST_IMAGE_DIR = pathlib.Path('data\\images')
 # TEST_IMAGE_PATH =   sorted(  list(PATH_TO_TEST_IMAGE_DIR.glob("*.jpg"))  )
@@ -142,6 +144,23 @@ if cap.isOpened() == False :
 else :
     # 반복문이 필요한 이유?  비데오는 여러 사진으로 구성되어있으니까
     # 여러개니까!
+    frame_width = int(cap.get(3))
+    frame_height = int(cap.get(4))
+
+    # 사이즈를 반으로 줄이는 방법
+    if int(frame_width/2) % 2 == 0 :
+        frame_width = int(frame_width/2)
+    else :
+        frame_width = int(frame_width/2) +1
+    if int(frame_height/2) % 2 == 0 :
+        frame_height = int(frame_height/2)
+    else :
+        frame_height = int(frame_height/2) +1
+
+    out = cv2.VideoWriter('data/videos/video_ret.mp4',
+                    cv2.VideoWriter_fourcc(*'H264'),
+                    10,
+                    (frame_width, frame_height))
     while cap.isOpened() :
         # 사진을 1장씩 가져와서.
         ret, frame = cap.read()
@@ -151,10 +170,16 @@ else :
             # cv2.imshow("Frame", frame)
 
             start_time = time.time()
-            show_inference(detection_model, frame )
+
+            img = show_inference(detection_model, frame )
+
+            img = cv2.resize(img, (frame_width, frame_height), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
+
             end_time = time.time()
+            
             print(end_time - start_time)
 
+            out.write(img)
             # 키보드에서 esc키를 누르면 exit 하라는 것.
             if cv2.waitKey(25) & 0xFF == 27 :
                 break
